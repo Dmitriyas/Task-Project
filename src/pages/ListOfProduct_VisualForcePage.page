@@ -1,0 +1,331 @@
+<apex:page lightningStylesheets="true" sidebar="false" StandardController="List_Of_Products__c" extensions="ListOfProducts_Controller" docType="html-5.0">
+<apex:slds />
+<apex:pageMessages />
+    <apex:form >   
+        <apex:pageBlock title="Online Shop Devices">
+         <apex:pageBlockButtons location="top" >
+             <!---input date and title to search by date and title device---> 
+          <div class="slds-form-element">
+  			<div class="slds-form-element__control slds-input-has-icon slds-input-has-icon_left-right">
+    		<svg class="slds-icon slds-input__icon slds-input__icon_left slds-icon-text-default" aria-hidden="true">
+      		<use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href= "{!URLFOR($Asset.SLDS, 'assets/icons/utility-sprite/svg/symbols.svg#search')}"/>
+    		</svg>
+    		<apex:inputText id="searchTitle"  label="Search" onKeyUp="doSearchTitle();" styleClass="slds-input" value="{!searchTitle}" style="width: 20%; border-radius: 7px;" />
+       		<apex:input id="searchAddedDate" type="date"  value="{! searchAddedDate }"  onKeyUp="doSearchByDate();" styleClass="slds-input" style="width: 20%; margin-left: 5px; border-radius: 7px;"  />
+  		</div>
+	</div>
+        <!--- JS code live search --->     
+             <script type="text/javascript">
+                          function doSearchTitle() {
+                              var inputTitle = document.getElementById(
+                                      document.querySelector('[id*="searchTitle"]').id
+                              ).value;
+
+                              var inputTrimmed = inputTitle.trim();
+                              if(inputTitle.length === 0 || inputTrimmed.length > 0) {
+                                  searchProduct(inputTrimmed);
+                              }
+                          }
+             
+             			function doSearchByDate(){
+                            var inputDate = document.getElementById(
+                                      document.querySelector('[id*="searchAddedDate"]').id
+                              ).value;
+                            
+                            var inputTrimm = inputDate.trim();
+                              if(inputDate.length === 0 || inputTrimm.length > 0 ) {
+                                  searchProduct(inputTrimm);
+                                } else {
+                                    searchProduct(inputTrimm);
+                             
+                         		}
+                            }
+		
+        		</script>
+             
+             <div>
+                <apex:actionFunction name="searchProduct" action="{!searchProduct}" reRender="List_Of_Products">
+                        <apex:param name="searchTitle" value="" />
+                </apex:actionFunction>   
+        	</div>
+             
+             <div>
+                <apex:actionFunction name="searchProduct" action="{!searchProduct}" reRender="List_Of_Products">
+                        <apex:param name="searchAddedDate" value="" />
+                </apex:actionFunction>   
+        	</div>
+                
+                <!--- button add popup--->
+                <button class="slds-button slds-button_brand" style="font-weight:bold; margin-left: 130px; margin-top: 5px;">
+                    <apex:commandLink action="{! showAddPopup}" value="New Product" reRender="AddNewProductPopup"/>
+                </button>
+            </apex:pageBlockButtons> 
+            <!--- pageBlockTable sort by values--->
+            <apex:pageBlockTable value="{! product }"  var="pt" id="List_Of_Products">
+             <!-- name -->                
+                <apex:column width="20%">
+                    <apex:facet name="header">
+                        <apex:commandLink action="{! sortByName}" reRender="List_Of_Products">                            
+                            <apex:outputText value="Name"/>
+                        </apex:commandLink>                                               
+                    </apex:facet>                    
+                    <apex:outputText value="{! pt.Name}"/>                    
+                </apex:column>
+                
+                   <!-- type -->
+                <apex:column width="15%">
+                    <apex:facet name="header">
+                        <apex:commandLink action="{! sortByType }" reRender="List_Of_Products">
+                            <apex:outputText value="Type"/>
+                        </apex:commandLink>
+                    </apex:facet>
+                    <apex:outputText value="{! pt.Type__c }"/>
+                </apex:column>
+                
+                <!-- amount -->
+                <apex:column width="15%">
+                    <apex:facet name="header">
+                        <apex:commandLink action="{! sortByAmount}" reRender="List_Of_Products">                            
+                            <apex:outputText value="Amount"/>
+                        </apex:commandLink>                                               
+                    </apex:facet>                    
+                    <apex:outputText value="{! pt.Amount__c }" style="margin-left: 15px;" />
+                </apex:column>
+                
+                <!-- price -->
+                <apex:column width="15%">
+                    <apex:facet name="header">
+                        <apex:commandLink action="{! sortByPrice}" reRender="List_Of_Products">                            
+                            <apex:outputText value="Price"/>
+                        </apex:commandLink>                                               
+                    </apex:facet>                    
+                    <apex:outputText value="{! pt.Price__c }"/>&nbsp;$
+                </apex:column>
+                
+                <!-- added date -->
+                <apex:column width="15%">
+                    <apex:facet name="header">
+                        <apex:commandLink action="{! sortByAddedDate}" reRender="List_Of_Products">                            
+                            <apex:outputText value="Added Date"/>
+                        </apex:commandLink>                                               
+                    </apex:facet>                    
+                    <apex:outputText value="{0,date,dd/MM/yy}">
+                        <apex:param value="{! pt.Added_Date__c}"/>
+                    </apex:outputText>
+                </apex:column>
+                
+                <!-- release date -->
+                <apex:column width="15%">
+                    <apex:facet name="header">
+                        <apex:commandLink action="{! sortByReleaseDate}" reRender="List_Of_Products">                            
+                            <apex:outputText value="Release Date"/>
+                        </apex:commandLink>                                               
+                    </apex:facet>                    
+                    <apex:outputText value="{0,date,dd/MM/yy}">
+                        <apex:param value="{! pt.Release_Date__c}"/>
+                    </apex:outputText>
+                </apex:column>
+                
+                 <!-- Delete button -->
+                <apex:column width="100%">
+                    <apex:commandLink action="{! showDeletePopup}" reRender="DeleteProductPopup" >
+                        <apex:param assignTo="{! productId }" value="{! pt.Id }" name="pruductId"/>
+                    <span class="slds-icon_container slds-icon_container_circle slds-icon-action-delete" title="Delete Product">
+  					<svg class="slds-icon" aria-hidden="true">
+    				<use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="{!URLFOR($Asset.SLDS, 'assets/icons/action-sprite/svg/symbols.svg#delete')}"></use>
+  					</svg>
+ 					 <span class="slds-assistive-text">Delete Product</span>
+					</span>
+                    </apex:commandLink>
+                </apex:column>
+   
+        </apex:pageBlockTable>
+    </apex:pageBlock>
+
+         	<!-- add new product popup -->
+               <apex:outputPanel id="AddNewProductPopup">
+                   <apex:outputPanel rendered="{! displayAddPopup }">
+  	      				<section  role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+    					<div class="slds-modal__container">
+     					 <header class="slds-modal__header">
+                             <apex:commandLink action="{! closeAddPopup}" reRender="AddNewProductPopup">
+                             	<button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+          							<svg class="slds-button__icon slds-button__icon_large" aria-hidden="true">
+            							<use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="{!URLFOR($Asset.SLDS, '/assets/icons/utility-sprite/svg/symbols.svg#close')}" />
+              						</svg>
+          							<span class="slds-assistive-text">Close</span>
+        						</button>
+                             </apex:commandLink>
+       						 <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Add New Product</h2>
+     				 </header>
+        			 <!-- field section popup -->  
+      				<div class="slds-modal__content slds-p-around_medium demo-only slds-grid" style=" height: 240px;">
+           				<!-- Left Half -->
+      					 <div class="slds-size_1-of-2 ">                
+                            <div class="slds-text-align_center ">
+                                <div class="slds-grid slds-grid_vertical ">                        
+                                    <div class="slds-grid">
+                                        <div class="slds-size_1-of-2" style="width: 110px;">
+                                            <div class="slds-text-align_right slds-m-right_x-small slds-m-top_xx-small">
+                                    			<apex:outputText value="Product Name"/><abbr class="slds-required">*</abbr>                                             
+                                			</div>
+                                        </div>
+                                        <div class="slds-size_1-of-2" style="width: 190px;">
+                                            <div class="slds-text-align_left ">                                                
+                                                <apex:inputField value="{! newProduct.Name }" onkeydown="if(event.keyCode==13){this.blur();actionFunction();}"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="slds-grid slds-m-top_small">
+                                        <div class="slds-size_1-of-2" style="width: 110px;">
+                                            <div class="slds-text-align_right slds-m-right_x-small slds-m-top_xx-small">
+                                                <apex:outputText value="Release Date"/>                                        
+                                            </div>
+                                        </div>
+                                        <div class="slds-size_1-of-2" style="width: 190px; height: 32px;">
+                                            <div class="slds-text-align_left">
+                                                <apex:input type="date" value="{! release_date }" onkeydown="if(event.keyCode==13){this.blur();actionFunction();}" id="relDate"/>                                                                                              
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="slds-grid slds-m-top_small">
+                                        <div class="slds-size_1-of-2" style="width: 110px;">
+                                            <div class="slds-text-align_right slds-m-right_x-small slds-m-top_xx-small">
+                                                <apex:outputText value="Added Date"/>                                              
+                                            </div>
+                                        </div>
+                                        <div class="slds-size_1-of-2" style="width: 190px; height: 32px;">
+                                            <div class="slds-text-align_left">
+                                                <apex:input type="date" value="{! added_date }" onkeydown="if(event.keyCode==13){this.blur();actionFunction();}" id="addDate"/>                                                                                             
+                                            </div>
+                                        </div>
+                                    </div>                  
+                                </div>
+                            </div>                
+                        </div>
+            
+                        <!-- Right Half -->
+                        <div class="slds-size_1-of-2 " >
+                            <div class="slds-text-align_center ">
+                    
+                                <div class="slds-grid slds-grid_vertical ">
+                                    <div class="slds-grid">
+                                        <div class="slds-size_1-of-2" style="width: 110px;">
+                                            <div class="slds-text-align_right slds-m-right_small slds-m-top_xx-small">
+                                                <apex:outputText value="Amount"/>                                               
+                                            </div>
+                                        </div>
+                                        <div class="slds-size_1-of-2">
+                                            <div class="slds-text-align_left" style="width: 190px;">                                                
+                                                <apex:inputField value="{! newProduct.Amount__c }" onkeydown="if(event.keyCode==13){this.blur();actionFunction();}"/>
+                                            </div>
+                                        </div>
+                                    </div>                    
+                                    <div class="slds-grid slds-m-top_small">
+                                        <div class="slds-size_1-of-2" style="width: 110px;">
+                                            <div class="slds-text-align_right slds-m-right_small slds-m-top_xx-small">
+                                                <apex:outputText value="Price"/>                                                
+                                            </div>
+                                        </div>
+                                        <div class="slds-size_1-of-2">
+                                            <div class="slds-text-align_left" style="width: 190px;">                                                
+                                                <apex:inputField value="{! newProduct.Price__c }" onkeydown="if(event.keyCode==13){this.blur();actionFunction();}"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="slds-grid slds-m-top_small">
+                                        <div class="slds-size_1-of-2" style="width: 110px;">
+                                            <div class="slds-text-align_right slds-m-right_small slds-m-top_xx-small">
+                                                <apex:outputText value="Type"/>                                             
+                                            </div>
+                                        </div>
+                                        <div class="slds-size_1-of-2" style="width: 186px;">
+                                            <div class="slds-text-align_left slds-m-left_xxx-small slds-m-top_xx-small">                                  
+                                                <apex:inputField value="{! newProduct.Type__c }" onkeydown="if(event.keyCode==13){this.blur();actionFunction();}" style="width: 186px; height: 26px;"/>                                    
+                                            </div>
+                                        </div>
+                                    </div> 
+                                </div>                 
+                            </div>
+                        </div>
+     				 </div>
+      				<footer class="slds-modal__footer">
+       			    <button class="slds-button slds-button_neutral"><apex:commandLink action="{! closeAddPopup}" value="Cancel" reRender="AddNewProductPopup"/></button>
+        			<button class="slds-button slds-button_brand"><apex:commandLink action="{! addNewProduct }" value="Save" /></button>
+      			</footer>
+    		</div>     
+  		  </section>
+ 		   <div class="slds-backdrop slds-backdrop_open"></div>
+                   
+        </apex:outputPanel>
+      </apex:outputPanel>
+     
+        <!--/ ADD NEW PRODUCT POPUP -->
+        <!-- DELETE PRODUCT POPUP -->
+        <apex:outputPanel id="DeleteProductPopup">
+             <apex:outputPanel rendered="{! displayDeletePopup }">
+ 	 	<section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" class="slds-modal slds-fade-in-open">
+    		<div class="slds-modal__container">
+                <header class="slds-modal__header">
+                     <apex:commandLink action="{! closeDeletePopup}" reRender="DeleteProductPopup">
+                             	<button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+          							<svg class="slds-button__icon slds-button__icon_large" aria-hidden="true">
+            							<use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="{!URLFOR($Asset.SLDS, '/assets/icons/utility-sprite/svg/symbols.svg#close')}" />
+              						</svg>
+          							<span class="slds-assistive-text">Close</span>
+        						</button>
+                             </apex:commandLink>
+                </header>
+        		<div class="slds-box slds-theme--default slds-container--medium" >         
+                    <div class="slds-align_absolute-center slds-text-heading_medium" style="font-weight:bold"><h1>Delete this Product ? </h1></div>                    
+                    	<div class="slds-align_absolute-center slds-m-top_large">
+                        <button class="slds-button slds-button_destructive">
+                            <apex:commandLink action="{! closeDeletePopup}" value="No" reRender="DeleteProductPopup"/>
+                        </button>
+                        <button class="slds-button slds-button_success" style="text-color:white" >
+                            <apex:commandLink action="{! deleteProduct }" value="Yes">
+                                <apex:param value="{! productId }" name="pruductId"/>
+                            </apex:commandLink>
+                        </button>
+                    </div>
+                </div>
+    		</div>
+  		</section>
+  			<div class="slds-backdrop slds-backdrop_open"></div>
+        </apex:outputPanel>
+        	</apex:outputPanel>       
+        <!--/ DELETE PRODUCT POPUP -->
+        
+
+        <!-- FOOTER -->
+        <div class="slds-docker-form-footer">
+        	<!-- Pagination -->
+        	<div style="height: 30px;" class="slds-align_absolute-center">
+            	<span class="slds-badge">
+                	<!-- First page -->
+                	<apex:commandLink action="{! First }" value="First"/>                    
+            	</span>
+            	<span class="slds-badge">
+                	<!-- Previous page -->
+                	<!-- active -->
+                	<apex:commandLink action="{! Previous }" value="< Previous" rendered="{! Previous }" />
+                	<!-- inactive (no earlier pages) -->
+                	<apex:outputText style="color: #ccc;" value="< Previous" rendered="{! NOT(Previous) }" />                    
+            	</span>
+            	<span class="slds-badge">
+                	<!-- Next page -->
+                	<!-- active -->
+                	<apex:commandLink action="{! Next }" value="Next >" rendered="{! Next }" />
+                	<!-- inactive (no more pages) -->
+                	<apex:outputText style="color: #ccc;" value="Next >" rendered="{! NOT(Next) }" />                   
+            	</span>
+            	<span class="slds-badge">
+                	<!-- Last page -->
+                	<apex:commandLink action="{! Last }" value="Last"/>                    
+            	</span>                 
+        	</div>
+        	<!--/ Pagination -->
+        </div>        
+        <!--/ FOOTER -->
+        </apex:form>
+</apex:page>
